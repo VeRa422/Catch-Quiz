@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Loading...</title>
+<style>
+body,html{margin:0;padding:0;background:#000;height:100vh;width:100vw;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:sans-serif;color:#fff}
+.loader{text-align:center}
+.loader .spin{font-size:40px;animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.loader p{margin-top:12px;opacity:0.6;font-size:14px}
+.error{color:#f44;text-align:center;padding:20px}
+</style>
+</head>
+<body>
+<div class="loader" id="loader">
+  <div class="spin">⏳</div>
+  <p>Loading game...</p>
+</div>
+<div class="error" id="error" style="display:none"></div>
+
+<script>
+(async function(){
+  try {
+    // Get game ID from URL params
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (!id) throw new Error('No game ID specified');
+
+    // Sanitize ID
+    const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
+
+    // Load config JSON from GitHub Pages (same repo)
+    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    const configUrl = base + '/data/' + safeId + '.json';
+
+    const resp = await fetch(configUrl);
+    if (!resp.ok) throw new Error('Game not found (404)');
+
+    const text = await resp.text();
+    let config;
+    try {
+      config = JSON.parse(text);
+    } catch(e) {
+      // If the JSON contains a stringified JSON, parse again
+      config = JSON.parse(JSON.parse(text));
+    }
+
+    // Set config and load engine
+    window.GAME_CONFIG = config;
+    document.getElementById('loader').style.display = 'none';
+
+    // Load engine.js from same repo
+    const engineUrl = base + '/engine.js';
+    const script = document.createElement('script');
+    script.src = engineUrl;
+    script.onerror = function(){ showError('Failed to load game engine') };
+    document.body.appendChild(script);
+
+  } catch(e) {
+    showError(e.message);
+  }
+})();
+
+function showError(msg) {
+  document.getElementById('loader').style.display = 'none';
+  var el = document.getElementById('error');
+  el.style.display = 'block';
+  el.innerHTML = '<p style="font-size:24px;margin-bottom:10px">😔</p><p>' + msg + '</p>';
+}
+</script>
+</body>
+</html>
