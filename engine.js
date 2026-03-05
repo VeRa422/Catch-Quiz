@@ -72,8 +72,17 @@ body,html{margin:0;padding:0;background:#000;height:100vh;width:100vw;overflow:h
 .vol-ctrl{position:absolute;bottom:15px;right:15px;z-index:5000;display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.7);padding:8px 14px;border-radius:20px;border:1px solid ${ac.b}44}
 .vol-ctrl label{font-size:14px;cursor:default}
 .vol-ctrl input[type=range]{width:80px;accent-color:${ac.a}}
+.game-logo{position:absolute;bottom:12px;left:12px;z-index:5000;display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.5);padding:6px 12px 6px 6px;border-radius:20px;text-decoration:none}
+.game-logo img{width:28px;height:28px;object-fit:contain;border-radius:4px}
+.game-logo span{font-size:9px;color:rgba(255,255,255,0.7);font-family:sans-serif;line-height:1.3}
 `;
 document.head.appendChild(style);
+
+// Logo HTML
+var logoHTML = '';
+if(C.showLogo !== false) {
+  logoHTML = '<div class="game-logo"><img src="https://raw.githubusercontent.com/VeRa422/Catch-Quiz/main/logo.png" alt=""><span>© 2026 Игровой Квартал<br>Все права защищены</span></div>';
+}
 
 // HTML
 document.body.innerHTML=`
@@ -96,6 +105,7 @@ document.body.innerHTML=`
 <label>🔊</label>
 <input type="range" id="vol-slider" min="0" max="100" value="${Math.round((C.volume||0.8)*100)}" oninput="masterVol=this.value/100;if(window._lastAudio)window._lastAudio.volume=masterVol">
 </div>
+${logoHTML}
 </div>`;
 
 // === GAME LOGIC ===
